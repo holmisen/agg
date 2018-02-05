@@ -6,6 +6,7 @@ where
 
 import DataSet
 import Expr
+import Record
 import Types
 
 import qualified Data.List as List
@@ -47,8 +48,8 @@ doGroup fields exprs = go where
       $ map mkGroup
       $ rs
 
-   mkGroup :: Record -> ([Data], [Record])
-   mkGroup r = (listTakeIndices fields r, [listDropIndices fields r])
+   mkGroup :: Record -> (Record, [Record])
+   mkGroup r = (recordTakeSubset fields r, [recordDropSubset fields r])
 
 
 doAggregate :: [(Field, AggFun)] -> DataSet Record -> DataSet Record
@@ -63,7 +64,7 @@ doAggregate fields = go where
          columns = List.transpose rs'
          columns' = [ show (agg f c) | c <- columns | f <- fs ]
       in
-         Seq [columns']
+         Seq [recordFromList columns']
 
    agg AggSum = sum . map (readNum 0)
    agg AggProd = product . map (readNum 1)
@@ -78,27 +79,6 @@ doProject pexprs = go where
 
 --------------------------------------------------------------------------------
 
-recordGet :: Field -> Record -> Data
-recordGet i r =
-   case List.take 1 $ List.drop i r of
-      [x] -> x
-      _   -> nullData
-
-
-recordProject :: [ProjExpr] -> Record -> Record
-recordProject pexprs r = map get pexprs
-   where
-      get (ProjField i) = recordGet i r
-      get (ProjValue v) = v
-
-
 readNum :: Double -> Data -> Double
 readNum def x = read x
 
---------------------------------------------------------------------------------
-
-listTakeIndices :: [Int] -> [a] -> [a]
-listTakeIndices is = map snd . filter (\(i,_) -> i `elem` is) . zip [0..]
-
-listDropIndices :: [Int] -> [a] -> [a]
-listDropIndices is = map snd . filter (\(i,_) -> not (i `elem` is)) . zip [0..]

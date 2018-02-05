@@ -1,13 +1,12 @@
 module DataSet where
 
+import Record
 import Types
 
 import Data.List (intercalate)
 import qualified Data.Map as Map
 
 --------------------------------------------------------------------------------
-
-type Record = [Data]
 
 data DataSet a
    = Seq [a]
@@ -32,7 +31,7 @@ printDataSet' i (Group m) =
 
 
 printRecord :: Int -> Record -> IO ()
-printRecord i = output i . intercalate "\t"
+printRecord i = output i . intercalate "\t" . recordToList
 
 
 printGroups :: Int -> Map Record (DataSet Record) -> IO ()
@@ -52,7 +51,7 @@ output i s = putStrLn $ concat (replicate i "   ") ++ s
 --------------------------------------------------------------------------------
 
 readDataSet :: String -> DataSet Record
-readDataSet = Seq . map words . lines
+readDataSet = Seq . map (recordFromList . words) . lines
 
 
 readDataSetFromFile :: FilePath -> IO (DataSet Record)
