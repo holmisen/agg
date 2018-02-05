@@ -61,10 +61,10 @@ pAggregate = Aggregate <$>
    (reserved "aggregate" *> pAggField `sepBy1` comma)
 
 
+pAggField :: Parser (Field, AggFun)
 pAggField = do
-   f <- pField
-   reserved "by"
    op <- pAggFun
+   f <- parens pField
    return (f,op)
 
 

@@ -1,5 +1,5 @@
 group by 0,4 {
-	aggregate 0 by count, 1 by sum, 2 by sum
+	aggregate count(0), sum(1), sum(2)
 }
 flatten
 group by 0 {}

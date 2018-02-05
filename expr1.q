@@ -1,5 +1,5 @@
 group by 0,1 {
-	aggregate 0 by sum, 1 by sum
+	aggregate sum(0), sum(1)
 }
 flatten
 group by 0 {}
