@@ -16,7 +16,7 @@ import qualified Text.Parsec.Token as T
 type Parser a = Parsec String () a
 
 lexer = T.makeTokenParser emptyDef
-   { T.reservedNames = ["by", "group", "flatten", "aggregate"]
+   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project"]
    , T.commentLine = "//"
    }
 
@@ -65,8 +65,19 @@ pAggField = do
    return (f,op)
 
 
+pProject :: Parser Expr
+pProject = do
+   reserved "project"
+   fs <- pProjExpr `sepBy` comma
+   return $ Project fs
+
+
+pProjExpr :: Parser ProjExpr
+pProjExpr = (ProjField <$> pField) -- TODO: Parse values
+
+
 pExpr :: Parser Expr
-pExpr = choice [pAggregate, pGroupBy, pFlatten]
+pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject]
 
 
 pExprs :: Parser [Expr]

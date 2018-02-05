@@ -24,6 +24,8 @@ next input = go where
       doGroup fields exprs input
    go (Aggregate fields) =
       doAggregate fields input
+   go (Project xs) =
+      doProject xs input
 
 
 doFlatten :: DataSet Record -> DataSet Record
@@ -66,6 +68,14 @@ doAggregate fields = go where
    agg AggSum = sum . map (readNum 0)
    agg AggProd = product . map (readNum 1)
 
+
+doProject :: [ProjExpr] -> DataSet Record -> DataSet Record
+doProject pexprs = go where
+   go (Group {}) =
+      error "Cannot project a group"
+   go (Seq rs) =
+      Seq $ fmap (recordProject pexprs) rs
+
 --------------------------------------------------------------------------------
 
 recordGet :: Field -> Record -> Data
@@ -73,6 +83,14 @@ recordGet i r =
    case List.take 1 $ List.drop i r of
       [x] -> x
       _   -> nullData
+
+
+recordProject :: [ProjExpr] -> Record -> Record
+recordProject pexprs r = map get pexprs
+   where
+      get (ProjField i) = recordGet i r
+      get (ProjValue v) = v
+
 
 readNum :: Double -> Data -> Double
 readNum def x = read x
