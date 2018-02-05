@@ -36,8 +36,11 @@ pField = fromIntegral <$> natural
 
 
 pAggFun :: Parser AggFun
-pAggFun = (const AggSum <$> symbol "sum")
-      <|> (const AggProd <$> symbol "product")
+pAggFun = choice
+   [ const AggSum <$> symbol "sum"
+   , const AggProd <$> symbol "product"
+   , const AggCount <$> symbol "count"
+   ]
 
 
 pGroupBy :: Parser Expr

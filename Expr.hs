@@ -6,7 +6,7 @@ import Types
 
 type Field = Int
 
-data AggFun = AggSum | AggProd
+data AggFun = AggSum | AggProd | AggCount
    deriving (Eq, Ord, Show)
 
 data ProjExpr = ProjField Field | ProjValue Data

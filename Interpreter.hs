@@ -68,6 +68,7 @@ doAggregate fields = go where
 
    agg AggSum = sum . map (readNum 0)
    agg AggProd = product . map (readNum 1)
+   agg AggCount = fromIntegral . length
 
 
 doProject :: [ProjExpr] -> DataSet Record -> DataSet Record
