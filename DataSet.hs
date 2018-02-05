@@ -1,5 +1,13 @@
-module DataSet where
+module DataSet
+  ( DataSet(..)
+  , printDataSet
+  , readDataSet
+  , readDataSetFromFile
+  , module Data
+  )
+where
 
+import Data
 import Record
 import Types
 
@@ -36,7 +44,8 @@ printDataSet' i (Group m) =
 
 
 printRecord :: Int -> Record -> IO ()
-printRecord i = output i . T.intercalate (T.pack "\t") . recordToList
+printRecord i =
+   output i . T.intercalate (T.pack "\t") . map dataToText . recordToList
 
 
 printGroups :: Int -> Map Record (DataSet Record) -> IO ()
@@ -59,7 +68,8 @@ indentation = T.pack "   "
 --------------------------------------------------------------------------------
 
 readDataSet :: L.Text -> DataSet Record
-readDataSet = Seq . map (recordFromList . map L.toStrict . L.words) . L.lines
+readDataSet =
+   Seq . map (recordFromList . map (DataTxt . L.toStrict) . L.words) . L.lines
 
 
 readDataSetFromFile :: FilePath -> IO (DataSet Record)

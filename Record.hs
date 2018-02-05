@@ -13,6 +13,7 @@ module Record
   )
 where
 
+import Data
 import Expr
 import Types
 

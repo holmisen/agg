@@ -62,13 +62,13 @@ doAggregate fields = go where
          fs = map snd fields
          rs' = [[recordGet i r | i <- is] | r <- rs]
          columns = List.transpose rs'
-         columns' = [ numToData (agg f c) | c <- columns | f <- fs ]
+         columns' = [ agg f c | c <- columns | f <- fs ]
       in
          Seq [recordFromList columns']
 
-   agg AggSum = sum . map (readNum 0)
-   agg AggProd = product . map (readNum 1)
-   agg AggCount = fromIntegral . length
+   agg AggSum = DataDbl . sum . map (dataToDouble 0)
+   agg AggProd = DataDbl . product . map (dataToDouble 1)
+   agg AggCount = DataDbl . fromIntegral . length
 
 
 doProject :: [ProjExpr] -> DataSet Record -> DataSet Record
