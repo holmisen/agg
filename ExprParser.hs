@@ -17,7 +17,7 @@ type Parser a = Parsec String () a
 
 lexer = T.makeTokenParser emptyDef
    { T.reservedNames = ["by", "group", "flatten", "aggregate", "project"]
-   , T.commentLine = "//"
+   , T.commentLine = "#"
    }
 
 parens      = T.parens lexer
