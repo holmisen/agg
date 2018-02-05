@@ -4,7 +4,12 @@ import Record
 import Types
 
 import Data.List (intercalate)
+
 import qualified Data.Map as Map
+import qualified Data.Text as T
+import qualified Data.Text.IO as T
+import qualified Data.Text.Lazy as L
+import qualified Data.Text.Lazy.IO as L
 
 --------------------------------------------------------------------------------
 
@@ -25,13 +30,13 @@ printDataSet = printDataSet' 0
 
 printDataSet' i (Seq rs) = do
    mapM_ (printRecord i) rs
-   putStrLn ""
+   T.putStrLn T.empty
 printDataSet' i (Group m) =
    printGroups i m
 
 
 printRecord :: Int -> Record -> IO ()
-printRecord i = output i . intercalate "\t" . recordToList
+printRecord i = output i . T.intercalate (T.pack "\t") . recordToList
 
 
 printGroups :: Int -> Map Record (DataSet Record) -> IO ()
@@ -45,14 +50,17 @@ printGroup i r ds = do
    printDataSet' (i+1) ds
 
 
-output :: Int -> String -> IO ()
-output i s = putStrLn $ concat (replicate i "   ") ++ s
+output :: Int -> T.Text -> IO ()
+output i s = T.putStrLn $ (T.replicate i ind <> s)
+
+
+indentation = T.pack "   "
 
 --------------------------------------------------------------------------------
 
-readDataSet :: String -> DataSet Record
-readDataSet = Seq . map (recordFromList . words) . lines
+readDataSet :: L.Text -> DataSet Record
+readDataSet = Seq . map (recordFromList . map L.toStrict . L.words) . L.lines
 
 
 readDataSetFromFile :: FilePath -> IO (DataSet Record)
-readDataSetFromFile fp = readDataSet <$> readFile fp
+readDataSetFromFile fp = readDataSet <$> L.readFile fp

@@ -4,6 +4,7 @@ import DataSet (printDataSet, readDataSet)
 import ExprParser (parseExprsFile)
 import Interpreter (run)
 
+import Data.Text.Lazy.IO as Lazy
 import System.Environment (getArgs)
 import System.Exit (die)
 
@@ -20,6 +21,6 @@ main = do
 
    expr <- parseExprsFile exprFile
 
-   dataSet <- readDataSet <$> getContents
+   dataSet <- readDataSet <$> Lazy.getContents
 
    printDataSet $ run expr dataSet

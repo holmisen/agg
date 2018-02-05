@@ -62,7 +62,7 @@ doAggregate fields = go where
          fs = map snd fields
          rs' = [[recordGet i r | i <- is] | r <- rs]
          columns = List.transpose rs'
-         columns' = [ show (agg f c) | c <- columns | f <- fs ]
+         columns' = [ numToData (agg f c) | c <- columns | f <- fs ]
       in
          Seq [recordFromList columns']
 
@@ -78,7 +78,3 @@ doProject pexprs = go where
       Seq $ fmap (recordProject pexprs) rs
 
 --------------------------------------------------------------------------------
-
-readNum :: Double -> Data -> Double
-readNum def x = read x
-
