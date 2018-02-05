@@ -51,7 +51,7 @@ printGroup i r ds = do
 
 
 output :: Int -> T.Text -> IO ()
-output i s = T.putStrLn $ (T.replicate i ind <> s)
+output i s = T.putStrLn $ (T.replicate i indentation <> s)
 
 
 indentation = T.pack "   "
