@@ -32,7 +32,7 @@ semi        = T.semi lexer
 --------------------------------------------------------------------------------
 
 pField :: Parser Field
-pField = fromIntegral <$> natural
+pField = fromIntegral <$> natural <?> "field"
 
 
 pAggFun :: Parser AggFun
@@ -71,7 +71,7 @@ pAggField = do
 pProject :: Parser Expr
 pProject = do
    reserved "project"
-   fs <- pProjExpr `sepBy` comma
+   fs <- pProjExpr `sepBy1` comma
    return $ Project fs
 
 
