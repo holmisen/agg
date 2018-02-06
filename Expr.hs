@@ -7,15 +7,19 @@ import Types
 
 type Field = Int
 
+newtype FieldName = FieldName String
+   deriving (Eq, Ord, Show)
+
 data AggFun = AggSum | AggProd | AggCount
    deriving (Eq, Ord, Show)
 
-data ProjExpr = ProjField Field | ProjValue Data
+data ProjExpr f = ProjField f | ProjValue Data
    deriving (Eq, Show)
 
-data Expr
-   = GroupBy [Field] [Expr]
+-- | f is the type of field identifiers
+data Expr f
+   = GroupBy [f] [Expr f]
    | Flatten
-   | Project [ProjExpr]
-   | Aggregate [(Field, AggFun)]
+   | Project [ProjExpr f]
+   | Aggregate [(f, AggFun)]
    deriving (Eq, Show)

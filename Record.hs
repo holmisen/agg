@@ -39,7 +39,7 @@ recordGet i (Record xs) =
       _   -> nullData
 
 
-recordProject :: [ProjExpr] -> Record -> Record
+recordProject :: [ProjExpr Field] -> Record -> Record
 recordProject pexprs r = Record $ map get pexprs
    where
       get (ProjField i) = recordGet i r

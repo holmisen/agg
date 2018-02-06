@@ -14,10 +14,10 @@ import qualified Data.Map as Map
 
 --------------------------------------------------------------------------------
 
-run :: [Expr] -> DataSet Record -> DataSet Record
+run :: [Expr Field] -> DataSet Record -> DataSet Record
 run exprs ds = foldl next ds exprs
 
-next :: DataSet Record -> Expr -> DataSet Record
+next :: DataSet Record -> Expr Field -> DataSet Record
 next input = go where
    go Flatten =
       doFlatten input
@@ -37,7 +37,7 @@ doFlatten = Seq . go where
    go (Seq rs) = rs
 
 
-doGroup :: [Field] -> [Expr] -> DataSet Record -> DataSet Record
+doGroup :: [Field] -> [Expr Field] -> DataSet Record -> DataSet Record
 doGroup fields exprs = go where
    go (Group {}) =
       error "Cannot group a group"
@@ -71,7 +71,7 @@ doAggregate fields = go where
    agg AggCount = DataDbl . fromIntegral . length
 
 
-doProject :: [ProjExpr] -> DataSet Record -> DataSet Record
+doProject :: [ProjExpr Field] -> DataSet Record -> DataSet Record
 doProject pexprs = go where
    go (Group {}) =
       error "Cannot project a group"

@@ -15,6 +15,9 @@ import qualified Text.Parsec.Token as T
 
 type Parser a = Parsec String () a
 
+type ExprParser = Parser (Expr Field)
+
+
 lexer = T.makeTokenParser emptyDef
    { T.reservedNames = ["by", "group", "flatten", "aggregate", "project"]
    , T.commentLine = "#"
@@ -43,7 +46,7 @@ pAggFun = choice
    ]
 
 
-pGroupBy :: Parser Expr
+pGroupBy :: ExprParser
 pGroupBy = do
    reserved "group"
    reserved "by"
@@ -52,11 +55,11 @@ pGroupBy = do
    return $ GroupBy fs es
 
 
-pFlatten :: Parser Expr
+pFlatten :: ExprParser
 pFlatten = const Flatten <$> reserved "flatten"
 
 
-pAggregate :: Parser Expr
+pAggregate :: ExprParser
 pAggregate = Aggregate <$>
    (reserved "aggregate" *> pAggField `sepBy1` comma)
 
@@ -68,31 +71,31 @@ pAggField = do
    return (f,op)
 
 
-pProject :: Parser Expr
+pProject :: ExprParser
 pProject = do
    reserved "project"
    fs <- pProjExpr `sepBy1` comma
    return $ Project fs
 
 
-pProjExpr :: Parser ProjExpr
+pProjExpr :: Parser (ProjExpr Field)
 pProjExpr = (ProjField <$> pField) -- TODO: Parse values
 
 
-pExpr :: Parser Expr
+pExpr :: ExprParser
 pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject]
 
 
-pExprs :: Parser [Expr]
+pExprs :: Parser [Expr Field]
 pExprs = many pExpr -- `sepBy` semi
 
 --------------------------------------------------------------------------------
 
-parseExprs :: SourceName -> String -> Either ParseError [Expr]
+parseExprs :: SourceName -> String -> Either ParseError [Expr Field]
 parseExprs = parse (pExprs <* eof)
 
 
-parseExprsFile :: FilePath -> IO [Expr]
+parseExprsFile :: FilePath -> IO [Expr Field]
 parseExprsFile filePath = do
    result <- parseExprs filePath <$> readFile filePath
    case result of
