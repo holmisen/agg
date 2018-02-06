@@ -1,5 +1,7 @@
-group by 0,1 {
-	aggregate sum(0), sum(1)
+columns [Date, Author, I, D, File]
+
+group by [Date, Author] {
+	aggregate [sum(I), sum(D)]
 }
 flatten
-group by 0 {}
+group by [Date] {}

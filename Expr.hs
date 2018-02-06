@@ -30,26 +30,46 @@ data Expr f
 
 --------------------------------------------------------------------------------
 
+data Env = Env [FieldName] (Maybe Env) deriving Show
+
+envFromList :: [FieldName] -> Env
+envFromList ns = Env ns Nothing
+
+flattenEnv :: Env -> [FieldName]
+flattenEnv (Env ns e) = ns ++ maybe [] flattenEnv e
+
+--------------------------------------------------------------------------------
+
 getFieldIndex :: [FieldName] -> FieldName -> Int
 getFieldIndex ns n@(FieldName x) =
    fromMaybe (error $ "No such name `" ++ x ++ "`") (List.elemIndex n ns)
 
 
-toIndexedFields :: [FieldName] -> [Expr FieldName] -> [Expr Field]
-toIndexedFields names = snd . mapAccumL go names where
-   go names (GroupBy ns exprs) =
-      (ns, GroupBy
-           (map (getFieldIndex names) ns)
-           (toIndexedFields (names \\ ns) exprs))
-   go names Flatten =
-      (names, Flatten)
-   go names (Project xs) =
-      (ns, Project $ map (fmap (getFieldIndex names)) xs)
+-- | Translate field names into indices.
+--
+toIndexedFields :: Env -> [Expr FieldName] -> [Expr Field]
+toIndexedFields env = snd . compute env
+
+
+compute env = mapAccumL go env where
+   go (Env names _) (GroupBy ns exprs) =
+      ( Env ns (Just subEnv')
+      , GroupBy (map (getFieldIndex names) ns) exprs')
+      where
+         subEnv = Env (names \\ ns) Nothing
+         (subEnv',exprs') = compute subEnv exprs
+   go env Flatten =
+      ( Env (flattenEnv env) Nothing
+      , Flatten )
+   go (Env names env) (Project xs) =
+      ( Env ns env
+      , Project $ map (fmap (getFieldIndex names)) xs )
       where
          ns = map getF xs
          getF (ProjField f)   = f
          getF (ProjValue _ f) = f
-   go names (Aggregate xs) =
-      (ns, Aggregate $ map (fmap (getFieldIndex names)) xs)
+   go (Env names env) (Aggregate xs) =
+      ( Env ns env
+      , Aggregate $ map (fmap (getFieldIndex names)) xs)
       where
          ns = [f | (_,f) <- xs]

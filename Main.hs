@@ -1,17 +1,18 @@
 module Main where
 
 import DataSet (printDataSet, readDataSet)
-import ExprParser (parseExprsFile)
-import Interpreter (run)
+import ExprParser (parseProgramFile)
+import Program (runProgram, prepareExpressions)
 
-import Data.Text.Lazy.IO as Lazy
 import System.Environment (getArgs)
 import System.Exit (die)
+
+import qualified Data.Text.Lazy.IO as Lazy
 
 --------------------------------------------------------------------------------
 
 main = do
-   exprFile <- do
+   programFile <- do
       args <- getArgs
       case args of
          [arg1] ->
@@ -19,8 +20,10 @@ main = do
          _ ->
             die $ "USAGE <exprFile>"
 
-   expr <- parseExprsFile exprFile
+   program <- parseProgramFile programFile
+
+--   print $ prepareExpressions program  -- DEBUG
 
    dataSet <- readDataSet <$> Lazy.getContents
 
-   printDataSet $ run expr dataSet
+   printDataSet $ runProgram program dataSet

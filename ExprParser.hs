@@ -1,10 +1,12 @@
 module ExprParser
   ( parseExprs
-  , parseExprsFile
+  , parseProgram
+  , parseProgramFile
   )
 where
 
 import Expr
+import ProgramTypes
 
 import System.Exit (die)
 import Text.Parsec
@@ -13,18 +15,36 @@ import qualified Text.Parsec.Token as T
 
 --------------------------------------------------------------------------------
 
+parseProgram :: SourceName -> String -> Either ParseError Program
+parseProgram = parse (pProgram <* eof)
+
+
+parseProgramFile :: FilePath -> IO Program
+parseProgramFile filePath = do
+   result <- parseProgram filePath <$> readFile filePath
+   case result of
+      Left err ->
+         die $ show err
+      Right expr ->
+         return expr
+
+--------------------------------------------------------------------------------
+
 type Parser a = Parsec String () a
 
-type ExprParser = Parser (Expr Field)
+type ExprParser = Parser (Expr FieldName)
 
 
 lexer = T.makeTokenParser emptyDef
-   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project"]
+   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project", "columns"]
    , T.commentLine = "#"
+   , T.identStart = upper
+   , T.identLetter = alphaNum
    }
 
 parens      = T.parens lexer
 braces      = T.braces lexer
+brackets    = T.brackets lexer
 identifier  = T.identifier lexer
 reserved    = T.reserved lexer
 symbol      = T.symbol lexer
@@ -34,8 +54,14 @@ semi        = T.semi lexer
 
 --------------------------------------------------------------------------------
 
-pField :: Parser Field
-pField = fromIntegral <$> natural <?> "field"
+pField :: Parser FieldName
+pField = (FieldName <$> identifier) <?> "field" where
+
+
+pType :: Parser DataType
+pType = choice
+   [ const TypeText <$> symbol "text"
+   , const TypeDouble <$> symbol "double" ]
 
 
 pAggFun :: Parser AggFun
@@ -50,7 +76,7 @@ pGroupBy :: ExprParser
 pGroupBy = do
    reserved "group"
    reserved "by"
-   fs <- pField `sepBy1` comma
+   fs <- brackets (pField `sepBy1` comma)
    es <- braces pExprs
    return $ GroupBy fs es
 
@@ -60,11 +86,12 @@ pFlatten = const Flatten <$> reserved "flatten"
 
 
 pAggregate :: ExprParser
-pAggregate = Aggregate <$>
-   (reserved "aggregate" *> pAggField `sepBy1` comma)
+pAggregate = do
+   reserved "aggregate"
+   Aggregate <$> brackets (pAggField `sepBy1` comma)
 
 
-pAggField :: Parser (AggFun, Field)
+pAggField :: Parser (AggFun, FieldName)
 pAggField = do
    op <- pAggFun
    f <- parens pField
@@ -74,11 +101,11 @@ pAggField = do
 pProject :: ExprParser
 pProject = do
    reserved "project"
-   fs <- pProjExpr `sepBy1` comma
+   fs <- brackets (pProjExpr `sepBy1` comma)
    return $ Project fs
 
 
-pProjExpr :: Parser (ProjExpr Field)
+pProjExpr :: Parser (ProjExpr FieldName)
 pProjExpr = (ProjField <$> pField) -- TODO: Parse values
 
 
@@ -86,20 +113,40 @@ pExpr :: ExprParser
 pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject]
 
 
-pExprs :: Parser [Expr Field]
+pExprs :: Parser [Expr FieldName]
 pExprs = many pExpr -- `sepBy` semi
+
+
+pColumnDef :: Parser (FieldName, DataType)
+pColumnDef = do
+   n <- pField
+   t <- option TypeText (parens pType)
+   return (n,t)
+
+
+pColumnsDef :: Parser [(FieldName, DataType)]
+pColumnsDef = do
+   reserved "columns"
+   brackets (pColumnDef `sepBy1` comma)
+
+
+pProgram :: Parser Program
+pProgram = do
+   cs <- pColumnsDef
+   xs <- pExprs
+   return $ Program cs xs
 
 --------------------------------------------------------------------------------
 
-parseExprs :: SourceName -> String -> Either ParseError [Expr Field]
+parseExprs :: SourceName -> String -> Either ParseError [Expr FieldName]
 parseExprs = parse (pExprs <* eof)
 
 
-parseExprsFile :: FilePath -> IO [Expr Field]
-parseExprsFile filePath = do
-   result <- parseExprs filePath <$> readFile filePath
-   case result of
-      Left err ->
-         die $ show err
-      Right expr ->
-         return expr
+-- parseExprsFile :: FilePath -> IO [Expr FieldName]
+-- parseExprsFile filePath = do
+--    result <- parseExprs filePath <$> readFile filePath
+--    case result of
+--       Left err ->
+--          die $ show err
+--       Right expr ->
+--          return expr

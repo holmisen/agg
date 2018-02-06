@@ -1,5 +1,7 @@
-group by 0,4 {
-	aggregate count(0), sum(1), sum(2)
+columns [Date, Author, I, D, File]
+
+group by [Date, File] {
+	aggregate [count(Count), sum(I), sum(D)]
 }
 flatten
-group by 0 {}
+group by [Date] {}
