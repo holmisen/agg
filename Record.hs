@@ -42,8 +42,8 @@ recordGet i (Record xs) =
 recordProject :: [ProjExpr Field] -> Record -> Record
 recordProject pexprs r = Record $ map get pexprs
    where
-      get (ProjField i) = recordGet i r
-      get (ProjValue v) = v
+      get (ProjField i)   = recordGet i r
+      get (ProjValue v _) = v
 
 
 recordTakeSubset :: [Int] -> Record -> Record

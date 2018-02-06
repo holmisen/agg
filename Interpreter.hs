@@ -52,14 +52,14 @@ doGroup fields exprs = go where
    mkGroup r = (recordTakeSubset fields r, [recordDropSubset fields r])
 
 
-doAggregate :: [(Field, AggFun)] -> DataSet Record -> DataSet Record
+doAggregate :: [(AggFun,Field)] -> DataSet Record -> DataSet Record
 doAggregate fields = go where
    go (Group {}) =
       error "Cannot aggregate a group"
    go (Seq rs) =
       let
-         is = map fst fields
-         fs = map snd fields
+         is = map snd fields
+         fs = map fst fields
          rs' = [[recordGet i r | i <- is] | r <- rs]
          columns = List.transpose rs'
          columns' = [ agg f c | c <- columns | f <- fs ]
