@@ -1,5 +1,6 @@
 module DataSet
   ( DataSet(..)
+  , isEmptyDataSet
   , printDataSet
   , readDataSet
   , readDataSetFromFile
@@ -29,6 +30,12 @@ data DataSet a
 instance Functor DataSet where
    fmap f (Seq rs) = Seq (fmap f rs)
    fmap f (Group m) = Group (fmap (fmap f) m)
+
+
+isEmptyDataSet :: DataSet a -> Bool
+isEmptyDataSet = o where
+   o (Seq xs) = null xs
+   o (Group m) = null m
 
 --------------------------------------------------------------------------------
 

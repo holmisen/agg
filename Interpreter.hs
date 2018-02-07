@@ -34,8 +34,9 @@ next input = go where
 doFlatten :: DataSet Record -> DataSet Record
 doFlatten = Seq . go where
    go (Group m) =
-      concatMap (\(h,ds) -> fmap (h <>) $ go ds) $
-      Map.toList m
+      concatMap (\(h,ds) -> fmap (h <>) $ go ds)
+      $ filter (\(_,ds) -> not $ isEmptyDataSet ds)
+      $ Map.toList m
    go (Seq rs) = rs
 
 
