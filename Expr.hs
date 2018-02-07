@@ -20,12 +20,16 @@ data AggFun = AggSum | AggProd | AggCount
 data ProjExpr f = ProjField f | ProjValue Data f
    deriving (Eq, Functor, Show)
 
+data Order = Asc | Desc
+   deriving (Eq, Ord, Show)
+
 -- | f is the type of field identifiers
 data Expr f
    = GroupBy [f] [Expr f]
    | Flatten
    | Project [ProjExpr f]
    | Aggregate [(AggFun, f)]
+   | SortBy [(Order, f)]
    deriving (Eq, Show)
 
 --------------------------------------------------------------------------------
@@ -73,3 +77,6 @@ compute env = mapAccumL go env where
       , Aggregate $ map (fmap (getFieldIndex names)) xs)
       where
          ns = [f | (_,f) <- xs]
+   go env@(Env names _) (SortBy fs) =
+      ( env
+      , SortBy $ map (fmap (getFieldIndex names)) fs )

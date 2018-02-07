@@ -27,6 +27,8 @@ next input = go where
       doAggregate fields input
    go (Project xs) =
       doProject xs input
+   go (SortBy fields) =
+      doSortBy fields input
 
 
 doFlatten :: DataSet Record -> DataSet Record
@@ -78,4 +80,22 @@ doProject pexprs = go where
    go (Seq rs) =
       Seq $ fmap (recordProject pexprs) rs
 
+
+doSortBy :: [(Order, Field)] -> DataSet Record -> DataSet Record
+doSortBy fields = go where
+   go (Group {}) =
+      error "Cannot sort a group"
+   go (Seq rs) =
+      Seq $ List.sortBy (compareRecords fields) rs
+
 --------------------------------------------------------------------------------
+
+compareRecords :: [(Order, Field)] -> Record -> Record -> Ordering
+compareRecords fields r1 r2 =
+   mconcat
+   [ (recordGet i r1) `cmp` (recordGet i r2)
+   | (o,i) <- fields
+   , let cmp = case o of
+            Asc  -> compare
+            Desc -> flip compare
+   ]

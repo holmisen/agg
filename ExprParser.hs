@@ -36,7 +36,7 @@ type ExprParser = Parser (Expr FieldName)
 
 
 lexer = T.makeTokenParser emptyDef
-   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project", "columns"]
+   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project", "columns", "sort"]
    , T.commentLine = "#"
    , T.identStart = upper
    , T.identLetter = alphaNum
@@ -109,8 +109,22 @@ pProjExpr :: Parser (ProjExpr FieldName)
 pProjExpr = (ProjField <$> pField) -- TODO: Parse values
 
 
+pSortField :: Parser (Order, FieldName)
+pSortField = do
+   f <- pField
+   o <- option Asc (const Desc <$> symbol "desc")
+   return (o,f)
+
+
+pSortBy :: ExprParser
+pSortBy = do
+   reserved "sort"
+   reserved "by"
+   SortBy <$> brackets (pSortField `sepBy1` comma)
+
+
 pExpr :: ExprParser
-pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject]
+pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject, pSortBy]
 
 
 pExprs :: Parser [Expr FieldName]
