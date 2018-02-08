@@ -30,6 +30,7 @@ data Expr f
    | Project [ProjExpr f]
    | Aggregate [(AggFun, f)]
    | SortBy [(Order, f)]
+   | TakeN Int
    deriving (Eq, Show)
 
 --------------------------------------------------------------------------------
@@ -80,3 +81,6 @@ compute env = mapAccumL go env where
    go env@(Env names _) (SortBy fs) =
       ( env
       , SortBy $ map (fmap (getFieldIndex names)) fs )
+   go env (TakeN n) =
+      ( env
+      , TakeN n )

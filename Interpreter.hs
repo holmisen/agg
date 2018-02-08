@@ -29,6 +29,8 @@ next input = go where
       doProject xs input
    go (SortBy fields) =
       doSortBy fields input
+   go (TakeN n) =
+      doTakeN n input
 
 
 doFlatten :: DataSet Record -> DataSet Record
@@ -88,6 +90,14 @@ doSortBy fields = go where
       error "Cannot sort a group"
    go (Seq rs) =
       Seq $ List.sortBy (compareRecords fields) rs
+
+
+doTakeN :: Int -> DataSet Record -> DataSet Record
+doTakeN n = go where
+   go (Group m) =
+      Group $ Map.take n m
+   go (Seq rs) =
+      Seq $ List.take n rs
 
 --------------------------------------------------------------------------------
 
