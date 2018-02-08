@@ -31,6 +31,8 @@ next = flip go where
       doSortBy fields
    go (TakeN n) =
       doTakeN n
+   go (CrossJoin exprs) =
+      doCrossJoin exprs
 
 
 doFlatten :: DataSet Record -> DataSet Record
@@ -108,6 +110,16 @@ doTakeN n = go where
       Group $ Map.take n m
    go (Seq rs) =
       Seq $ List.take n rs
+
+
+doCrossJoin :: [Expr Field] -> DataSet Record -> DataSet Record
+doCrossJoin exprs = go where
+   go (Group {}) =
+      error "Cannot cross join group"
+   go (Seq rs) =
+      Seq [ r <> r' | r <- rs, r' <- rs' ]
+      where
+         (Seq rs') = doFlatten $ run exprs (Seq rs)
 
 --------------------------------------------------------------------------------
 

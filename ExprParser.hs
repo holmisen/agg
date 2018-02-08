@@ -36,7 +36,7 @@ type ExprParser = Parser (Expr FieldName)
 
 
 lexer = T.makeTokenParser emptyDef
-   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project", "columns", "sort", "take"]
+   { T.reservedNames = ["by", "group", "flatten", "aggregate", "project", "columns", "sort", "take", "cross", "join"]
    , T.commentLine = "#"
    , T.identStart = upper
    , T.identLetter = alphaNum
@@ -131,8 +131,15 @@ pTakeN = do
    TakeN . fromIntegral <$> natural
 
 
+pCrossJoin :: ExprParser
+pCrossJoin = do
+   reserved "cross"
+   reserved "join"
+   CrossJoin <$> braces pExprs
+
+
 pExpr :: ExprParser
-pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject, pSortBy, pTakeN]
+pExpr = choice [pAggregate, pGroupBy, pFlatten, pProject, pSortBy, pTakeN, pCrossJoin]
 
 
 pExprs :: Parser [Expr FieldName]

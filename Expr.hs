@@ -31,6 +31,7 @@ data Expr f
    | Aggregate [(AggFun, f)]
    | SortBy [(Order, f)]
    | TakeN Int
+   | CrossJoin [Expr f]
    deriving (Eq, Show)
 
 --------------------------------------------------------------------------------
@@ -84,3 +85,9 @@ compute env = mapAccumL go env where
    go env (TakeN n) =
       ( env
       , TakeN n )
+   go env@(Env ns _) (CrossJoin exprs) =
+      ( Env (ns <> ns') Nothing
+      , CrossJoin exprs' )
+      where
+         (env',exprs') = compute env exprs
+         ns' = flattenEnv env'
