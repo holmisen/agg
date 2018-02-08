@@ -14,7 +14,7 @@ type Field = Int
 newtype FieldName = FieldName String
    deriving (Eq, Ord, Show)
 
-data AggFun = AggSum | AggProd | AggCount
+data AggFun = AggSum | AggProd | AggCount | AggMax | AggMin
    deriving (Eq, Ord, Show)
 
 data ProjExpr f = ProjField f | ProjValue Data f

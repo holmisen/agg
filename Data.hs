@@ -15,16 +15,14 @@ nullData :: Data
 nullData = DataTxt empty
 
 
-textReadDouble :: Double -> Text -> Double
-textReadDouble def x = case T.signed T.double x of
-   Left  _     -> def
-   Right (n,_) -> n
+textGetDouble :: Text -> Maybe Double
+textGetDouble = either (const Nothing) (Just . fst) . T.signed T.double
 
 
-dataToDouble :: Double -> Data -> Double
-dataToDouble def = get where
-   get (DataDbl x) = x
-   get (DataTxt x) = textReadDouble def x
+dataGetDouble :: Data -> Maybe Double
+dataGetDouble = get where
+   get (DataDbl x) = Just x
+   get (DataTxt x) = textGetDouble x
 
 
 dataToText :: Data -> Text

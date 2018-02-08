@@ -18,19 +18,19 @@ run :: [Expr Field] -> DataSet Record -> DataSet Record
 run exprs ds = foldl next ds exprs
 
 next :: DataSet Record -> Expr Field -> DataSet Record
-next input = go where
+next = flip go where
    go Flatten =
-      doFlatten input
+      doFlatten
    go (GroupBy fields exprs) =
-      doGroup fields exprs input
+      doGroup fields exprs
    go (Aggregate fields) =
-      doAggregate fields input
+      doAggregate fields
    go (Project xs) =
-      doProject xs input
+      doProject xs
    go (SortBy fields) =
-      doSortBy fields input
+      doSortBy fields
    go (TakeN n) =
-      doTakeN n input
+      doTakeN n
 
 
 doFlatten :: DataSet Record -> DataSet Record
@@ -71,9 +71,19 @@ doAggregate fields = go where
       in
          Seq [recordFromList columns']
 
-   agg AggSum = DataDbl . sum . map (dataToDouble 0)
-   agg AggProd = DataDbl . product . map (dataToDouble 1)
+   agg AggSum = DataDbl . sum . getNumbers
+   agg AggProd = DataDbl . product . getNumbers
    agg AggCount = DataDbl . fromIntegral . length
+   agg AggMax = \xs ->
+      case getNumbers xs of
+         [] -> nullData
+         xs -> DataDbl $ List.maximum xs
+   agg AggMin = \xs ->
+      case getNumbers xs of
+         [] -> nullData
+         xs -> DataDbl $ List.minimum xs
+
+   getNumbers = catMaybes . map dataGetDouble
 
 
 doProject :: [ProjExpr Field] -> DataSet Record -> DataSet Record

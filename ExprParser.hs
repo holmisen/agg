@@ -66,9 +66,11 @@ pType = choice
 
 pAggFun :: Parser AggFun
 pAggFun = choice
-   [ const AggSum <$> symbol "sum"
-   , const AggProd <$> symbol "product"
-   , const AggCount <$> symbol "count"
+   [ const AggSum <$> try (symbol "sum")
+   , const AggProd <$> try (symbol "product")
+   , const AggCount <$> try (symbol "count")
+   , const AggMax <$> try (symbol "max")
+   , const AggMin <$> try (symbol "min")
    ]
 
 
