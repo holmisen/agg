@@ -4,10 +4,10 @@ module Interpreter
   ( run )
 where
 
+import Common
 import DataSet
 import Expr
 import Record
-import Types
 
 import qualified Data.List as List
 import qualified Data.Map as Map

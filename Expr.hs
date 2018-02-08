@@ -2,8 +2,8 @@
 
 module Expr where
 
+import Common
 import Data
-import Types
 
 import Data.List as List
 

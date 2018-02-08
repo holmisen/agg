@@ -13,9 +13,9 @@ module Record
   )
 where
 
+import Common
 import Data
 import Expr
-import Types
 
 import Data.List as List
 

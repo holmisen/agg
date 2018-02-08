@@ -8,9 +8,9 @@ module DataSet
   )
 where
 
+import Common
 import Data
 import Record
-import Types
 
 import Data.List (intercalate)
 

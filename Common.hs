@@ -1,4 +1,6 @@
-module Types
+-- | Various commonly used things.
+--
+module Common
    ( Map
    , module Export
    )
