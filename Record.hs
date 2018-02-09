@@ -16,6 +16,7 @@ where
 import Common
 import Data
 import Expr
+import VExpr
 
 import Data.List as List
 
@@ -40,10 +41,17 @@ recordGet i (Record xs) =
 
 
 recordProject :: [ProjExpr Field] -> Record -> Record
-recordProject pexprs r = Record $ map get pexprs
-   where
-      get (ProjField i)   = recordGet i r
-      get (ProjValue v _) = v
+recordProject pexprs r = Record $ [eval r x | ProjExpr x _ <- pexprs]
+
+
+eval :: Record -> VExpr Int -> Data
+eval r = go where
+   go (VField i) = recordGet i r
+   go (VData d)  = d
+   go (VAdd x y) = Data.applyNumOp (+) (eval r x) (eval r y)
+   go (VSub x y) = Data.applyNumOp (-) (eval r x) (eval r y)
+   go (VMul x y) = Data.applyNumOp (*) (eval r x) (eval r y)
+   go (VDiv x y) = Data.applyNumOp (/) (eval r x) (eval r y)
 
 
 recordTakeSubset :: [Int] -> Record -> Record

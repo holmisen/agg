@@ -1,5 +1,7 @@
 module Data where
 
+import Common
+
 import Data.Text (Text, empty, pack)
 import qualified Data.Text.Read as T
 
@@ -28,3 +30,8 @@ dataGetDouble = get where
 dataToText :: Data -> Text
 dataToText (DataTxt x) = x
 dataToText (DataDbl x) = pack (show x)
+
+
+applyNumOp :: (Double -> Double -> Double) -> Data -> Data -> Data
+applyNumOp f x y = 
+   maybe nullData DataDbl $ f <$> dataGetDouble x <*> dataGetDouble y

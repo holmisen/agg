@@ -5,11 +5,14 @@ module ExprParser
   )
 where
 
+import Data
 import Expr
+import VExpr
 import ProgramTypes
 
 import System.Exit (die)
 import Text.Parsec
+import Text.Parsec.Expr
 import Text.Parsec.Language (emptyDef)
 import qualified Text.Parsec.Token as T
 
@@ -40,17 +43,21 @@ lexer = T.makeTokenParser emptyDef
    , T.commentLine = "#"
    , T.identStart = upper
    , T.identLetter = alphaNum
+   , T.reservedOpNames = ["+","-","*","/"]
    }
 
-parens      = T.parens lexer
-braces      = T.braces lexer
-brackets    = T.brackets lexer
-identifier  = T.identifier lexer
-reserved    = T.reserved lexer
-symbol      = T.symbol lexer
-natural     = T.natural lexer
-comma       = T.comma lexer
-semi        = T.semi lexer
+parens         = T.parens lexer
+braces         = T.braces lexer
+brackets       = T.brackets lexer
+identifier     = T.identifier lexer
+reserved       = T.reserved lexer
+symbol         = T.symbol lexer
+natural        = T.natural lexer
+comma          = T.comma lexer
+semi           = T.semi lexer
+float          = T.float lexer
+naturalOrFloat = T.naturalOrFloat lexer
+reservedOp     = T.reservedOp lexer
 
 --------------------------------------------------------------------------------
 
@@ -108,7 +115,14 @@ pProject = do
 
 
 pProjExpr :: Parser (ProjExpr FieldName)
-pProjExpr = (ProjField <$> pField) -- TODO: Parse values
+pProjExpr = do
+   x <- pVExpr
+   n <- case x of
+           VField {} ->
+              optionMaybe (reserved "as" *> pField)
+           _ ->
+              Just <$> (reserved "as" *> pField)
+   return $ ProjExpr x n
 
 
 pSortField :: Parser (Order, FieldName)
@@ -179,3 +193,22 @@ parseExprs = parse (pExprs <* eof)
 --          die $ show err
 --       Right expr ->
 --          return expr
+
+--------------------------------------------------------------------------------
+-- Expression parser
+
+pData :: Parser Data
+pData = choice [DataDbl . either fromIntegral id <$> naturalOrFloat] -- TODO: Text
+
+
+pVExpr :: Parser (VExpr FieldName)
+pVExpr = buildExpressionParser optable term
+
+
+term = choice [parens pVExpr, VField <$> pField, VData <$> pData]
+
+optable = [ [binary "*" VMul AssocLeft, binary "/" VDiv AssocLeft ]
+          , [binary "+" VAdd AssocLeft, binary "-" VSub AssocLeft ]
+          ]
+
+binary name fun assoc = Infix (reservedOp name >> return fun) assoc

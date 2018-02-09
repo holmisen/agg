@@ -4,6 +4,7 @@ module Expr where
 
 import Common
 import Data
+import VExpr
 
 import Data.List as List
 
@@ -17,7 +18,7 @@ newtype FieldName = FieldName String
 data AggFun = AggSum | AggProd | AggCount | AggMax | AggMin
    deriving (Eq, Ord, Show)
 
-data ProjExpr f = ProjField f | ProjValue Data f
+data ProjExpr f = ProjExpr (VExpr f) (Maybe f)
    deriving (Eq, Functor, Show)
 
 data Order = Asc | Desc
@@ -67,13 +68,18 @@ compute env = mapAccumL go env where
    go env Flatten =
       ( Env (flattenEnv env) Nothing
       , Flatten )
-   go (Env names env) (Project xs) =
-      ( Env ns env
-      , Project $ map (fmap (getFieldIndex names)) xs )
+   go (Env names env) (Project pexprs) =
+      ( Env names' env
+      , Project pexprs' )
       where
-         ns = map getF xs
-         getF (ProjField f)   = f
-         getF (ProjValue _ f) = f
+         pexprs' = [ ProjExpr x' Nothing
+                   | ProjExpr x _ <- pexprs
+                   , let x' = fmap (getFieldIndex names) x
+                   ]
+         names' = map get pexprs
+         get (ProjExpr _          (Just n')) = n'
+         get (ProjExpr (VField n) Nothing  ) = n
+         get _ = error $ "Missing name for column"
    go (Env names env) (Aggregate xs) =
       ( Env ns env
       , Aggregate $ map (fmap (getFieldIndex names)) xs)
