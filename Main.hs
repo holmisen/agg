@@ -1,6 +1,8 @@
 module Main where
 
-import DataSet (printDataSet, readDataSet)
+import Config
+import DataSet (readDataSet)
+import DataSet.OutputSimple (printDataSet)
 import ExprParser (parseProgramFile)
 import Program (runProgram, prepareExpressions)
 
@@ -22,8 +24,13 @@ main = do
 
    program <- parseProgramFile programFile
 
---   print $ prepareExpressions program  -- DEBUG
-
    dataSet <- readDataSet <$> Lazy.getContents
 
-   printDataSet $ runProgram program dataSet
+   appRunWithConfig config $ do
+
+--   print $ prepareExpressions program  -- DEBUG
+
+      printDataSet $ runProgram program dataSet
+
+
+config = defaultConfig
