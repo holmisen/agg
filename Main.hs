@@ -1,12 +1,14 @@
 module Main where
 
+import Common
 import Config
 import DataSet (readDataSet)
 import DataSet.OutputSimple (printDataSet)
 import ExprParser (parseProgramFile)
 import Program (runProgram, prepareExpressions)
 
-import System.Environment (getArgs)
+import Data.Text (pack)
+import System.Environment (getArgs, lookupEnv)
 import System.Exit (die)
 
 import qualified Data.Text.Lazy.IO as Lazy
@@ -26,11 +28,12 @@ main = do
 
    dataSet <- readDataSet <$> Lazy.getContents
 
+   ofs <- fromMaybe "\t" <$> lookupEnv "OFS"
+
+   let config = defaultConfig { configOutputSep = pack ofs }
+
    appRunWithConfig config $ do
 
 --   print $ prepareExpressions program  -- DEBUG
 
       printDataSet $ runProgram program dataSet
-
-
-config = defaultConfig
