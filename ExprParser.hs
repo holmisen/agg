@@ -205,7 +205,19 @@ pVExpr :: Parser (VExpr FieldName)
 pVExpr = buildExpressionParser optable term
 
 
-term = choice [parens pVExpr, VField <$> pField, VData <$> pData]
+term = choice
+   [ parens pVExpr
+   , VField <$> pField
+   , VData <$> pData
+   , do symbol "dec"
+        parens $ do
+           n <- fromIntegral <$> natural
+           comma
+           m <- fromIntegral <$> natural
+           comma
+           x <- pVExpr
+           return $ VDec n m x
+   ]
 
 optable = [ [binary "*" VMul AssocLeft, binary "/" VDiv AssocLeft ]
           , [binary "+" VAdd AssocLeft, binary "-" VSub AssocLeft ]

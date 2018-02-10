@@ -19,6 +19,8 @@ import Expr
 import VExpr
 
 import Data.List as List
+import Data.Text (pack)
+import Text.Printf (printf)
 
 --------------------------------------------------------------------------------
 
@@ -48,10 +50,18 @@ eval :: Record -> VExpr Int -> Data
 eval r = go where
    go (VField i) = recordGet i r
    go (VData d)  = d
-   go (VAdd x y) = Data.applyNumOp (+) (eval r x) (eval r y)
-   go (VSub x y) = Data.applyNumOp (-) (eval r x) (eval r y)
-   go (VMul x y) = Data.applyNumOp (*) (eval r x) (eval r y)
-   go (VDiv x y) = Data.applyNumOp (/) (eval r x) (eval r y)
+   go (VAdd x y) = Data.applyNumOp (+) (go x) (go y)
+   go (VSub x y) = Data.applyNumOp (-) (go x) (go y)
+   go (VMul x y) = Data.applyNumOp (*) (go x) (go y)
+   go (VDiv x y) = Data.applyNumOp (/) (go x) (go y)
+   go (VDec n m x) = case go x of
+      DataDbl d ->
+         format n m d
+      txt ->
+         maybe txt (format n m) $ dataGetDouble txt
+
+format :: Int -> Int -> Double -> Data
+format n m = DataTxt . pack . printf (concat ["%", show n, ".", show m, "f"])
 
 
 recordTakeSubset :: [Int] -> Record -> Record
