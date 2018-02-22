@@ -2,7 +2,7 @@ module Main where
 
 import Common
 import Config
-import DataSet (readDataSet)
+import DataSet.InputSimple (readDataSet)
 import DataSet.OutputSimple (printDataSet)
 import ExprParser (parseProgramFile)
 import Program (runProgram, prepareExpressions)
@@ -26,14 +26,17 @@ main = do
 
    program <- parseProgramFile programFile
 
-   dataSet <- readDataSet <$> Lazy.getContents
-
    ofs <- fromMaybe "\t" <$> lookupEnv "OFS"
+   ifs <- fromMaybe "" <$> lookupEnv "IFS"
 
-   let config = defaultConfig { configOutputSep = pack ofs }
+   let config = defaultConfig
+          { configOutputSep = pack ofs
+          , configInputSep = pack ifs }
 
    appRunWithConfig config $ do
 
 --   print $ prepareExpressions program  -- DEBUG
+
+      dataSet <- readDataSet =<< liftIO (Lazy.getContents)
 
       printDataSet $ runProgram program dataSet

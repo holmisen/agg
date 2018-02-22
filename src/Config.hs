@@ -23,6 +23,7 @@ import Data.Text (Text)
 data Config = Config
    { configOutputSep :: Text
    , configOutputIndent :: Text
+   , configInputSep :: Text -- ^ empty string separates by whitespace
    }
    deriving (Eq, Show)
 
@@ -35,6 +36,7 @@ type AppIO a = ReaderT Config IO a
 defaultConfig = Config
    { configOutputSep = "\t"
    , configOutputIndent = "   "
+   , configInputSep = ""
    }
 
 

@@ -1,8 +1,6 @@
 module DataSet
   ( DataSet(..)
   , isEmptyDataSet
-  , readDataSet
-  , readDataSetFromFile
   , module Data
   )
 where
@@ -30,13 +28,3 @@ isEmptyDataSet :: DataSet a -> Bool
 isEmptyDataSet = o where
    o (Seq xs) = null xs
    o (Group m) = null m
-
---------------------------------------------------------------------------------
-
-readDataSet :: L.Text -> DataSet Record
-readDataSet =
-   Seq . map (recordFromList . map (DataTxt . L.toStrict) . L.words) . L.lines
-
-
-readDataSetFromFile :: FilePath -> IO (DataSet Record)
-readDataSetFromFile fp = readDataSet <$> L.readFile fp
