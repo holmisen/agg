@@ -5,7 +5,7 @@ module DataSet.InputSimple
 where
 
 import Config
-import DataSet hiding (readDataSet)
+import DataSet
 import Record
 
 import qualified Data.Text as T
