@@ -3,8 +3,7 @@
 module Config
   ( Config(..)
   , defaultConfig
-  , App
-  , AppIO
+  , AppT
   , ask
   , asks
   , liftIO
@@ -28,9 +27,7 @@ data Config = Config
    deriving (Eq, Show)
 
 
-type App a = Reader Config a
-
-type AppIO a = ReaderT Config IO a
+type AppT m a = ReaderT Config m a
 
 
 defaultConfig = Config
@@ -40,5 +37,5 @@ defaultConfig = Config
    }
 
 
-appRunWithConfig :: Config -> AppIO a -> IO a
+appRunWithConfig :: Config -> AppT IO a -> IO a
 appRunWithConfig = flip runReaderT

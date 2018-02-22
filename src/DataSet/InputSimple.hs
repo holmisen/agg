@@ -14,7 +14,7 @@ import qualified Data.Text.Lazy.IO as L
 
 --------------------------------------------------------------------------------
 
-readDataSet :: L.Text -> AppIO (DataSet Record)
+readDataSet :: Monad m => L.Text -> AppT m (DataSet Record)
 readDataSet input = do
    sep <- asks configInputSep
    return $ readDataSetWith sep input
