@@ -9,9 +9,6 @@ import Common
 import Data
 import Record
 
-import qualified Data.Text.Lazy as L
-import qualified Data.Text.Lazy.IO as L
-
 --------------------------------------------------------------------------------
 
 data DataSet a
