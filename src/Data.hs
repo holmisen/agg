@@ -29,7 +29,11 @@ dataGetDouble = get where
 
 dataToText :: Data -> Text
 dataToText (DataTxt x) = x
-dataToText (DataDbl x) = pack (show x)
+dataToText (DataDbl x) = pack (showFloat x)
+
+
+showFloat :: (RealFrac a, Show a) => a -> String
+showFloat x = if floor x == ceiling x then show (floor x) else show x
 
 
 applyNumOp :: (Double -> Double -> Double) -> Data -> Data -> Data
