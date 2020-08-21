@@ -4,7 +4,7 @@ Agg reads space separated input data and aggregates it based on a
 script describing the aggregation.
 
 The script file is based on a DSL which is tailored to make it easy
-to work on nested data sets.
+to work on nested datasets.
 
 
 ## Example use
@@ -36,18 +36,18 @@ look like this:
         aggregate [sum(I), sum(R)]
     }
     
-    # Finally, we can flatten the groups back into tsv again:
+    # Finally, we can flatten the groups back into flat records:
     flatten
 
 Lines starting with `#` are comments.
 
-The above program will output:
+The above script will produce:
 
     2010-02-04	5	11
     2010-05-01	5	8
 
 
-## Environment variables
+## Field separators
 
 If environment variable `IFS` is set, then it is used for input field
 separator. Otherwise, spaces are used to separate fields.
@@ -82,8 +82,10 @@ Flattens nested datasets (groups) into a single, flat dataset.
 
 `group by [` _column_ ... `]` `{` _command_ ... `}`
 
-Splits the data set into groups (subsets) based in the given input
+Splits the dataset into groups (subsets) based in the given input
 columns.
+
+Commands inside the braces act on the groups.
 
 `project [` _column_ [ `as` _name_ ] ... `]`
 
@@ -91,7 +93,7 @@ Rename and/or move columns.
 
 `aggregate [` _agg-function_ `(` _column_ `)` ... `]`
 
-Aggregate all records in the data set into a single record.
+Aggregate all records in the dataset into a single record.
 
 Available aggregation functions:
 
@@ -103,13 +105,13 @@ Available aggregation functions:
 
 `sort by [` _column_ [ `desc` ] ... `]`
 
-Sort the data set in the order based on the listed columns. Sort order
+Sort the dataset in the order based on the listed columns. Sort order
 is either ascending (default) or descending if `desc` is added after
 the column name.
 
 `take` _number_
 
-Keep the first _number_ records in the data set. Throw away the rest.
+Keep the first _number_ records in the dataset. Throw away the rest.
 
 `cross join {` _command_ ... `}`
 
