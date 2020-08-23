@@ -58,6 +58,7 @@ semi           = T.semi lexer
 float          = T.float lexer
 naturalOrFloat = T.naturalOrFloat lexer
 reservedOp     = T.reservedOp lexer
+whiteSpace     = T.whiteSpace lexer
 
 --------------------------------------------------------------------------------
 
@@ -175,6 +176,7 @@ pColumnsDef = do
 
 pProgram :: Parser Program
 pProgram = do
+   whiteSpace
    cs <- pColumnsDef
    xs <- pExprs
    return $ Program cs xs
