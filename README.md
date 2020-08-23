@@ -2,7 +2,7 @@
 
 Agg is a tool which reads character separated input data and
 aggregates it according to a script. The script is written in a DSL
-which is tailored to make it easy to work on nested datasets.
+which is tailored to make it easy to work on nested data sets.
 
 The DSL provides constructs (commands) similar to SQL, but with some
 added benefits:
@@ -21,7 +21,7 @@ Nested data sets can in turn be nested and so on.
 
 ## Example use
 
-Suppose we have a data file with information about commits from a CVS:
+Suppose we have a data file with information about commits from a VCS:
 
     2010-02-04   John   4   3   src/foo.sh
     2010-02-04   John   1   6   src/bar.sh
@@ -32,8 +32,7 @@ Suppose we have a data file with information about commits from a CVS:
 Each line is a commit with date, author, number of inserts, number of
 deletes and file name.
 
-Now we can easily write agg scripts to aggregate this data in various
-ways.
+We can write agg scripts to aggregate this data in various ways.
 
 ### Example 1
 
@@ -62,8 +61,8 @@ The above script will produce:
 
 ### Example 2
 
-Now we want to see what file has the most number of inserts per
-day. The following script would provide:
+Now we want to see what file has the most number of inserts each
+day:
 
     columns [D,A,I,R,F]
     
@@ -151,7 +150,7 @@ Keep the first _number_ records in the data set. Throw away the rest.
 
 `cross join {` _command_ ... `}`
 
-Input if cross joined with the result if applying the inner commands
+Input is cross joined with the result if applying the inner commands
 to the input.
 
 
@@ -160,4 +159,3 @@ to the input.
  1. Install the [stack](haskellstack.org) build tool.
 
  2. Run `stack install` to build and install.
-
