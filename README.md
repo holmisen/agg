@@ -137,6 +137,7 @@ Available aggregation functions:
  - `min`
  - `product`
  - `sum`
+ - `avg` -- average
 
 `sort by [` _column_ [ `desc` ] ... `]`
 

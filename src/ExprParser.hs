@@ -79,6 +79,7 @@ pAggFun = choice
    , const AggCount <$> try (symbol "count")
    , const AggMax <$> try (symbol "max")
    , const AggMin <$> try (symbol "min")
+   , const AggAvg <$> try (symbol "avg")
    ]
 
 

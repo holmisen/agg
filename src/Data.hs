@@ -3,6 +3,7 @@ module Data where
 import Common
 
 import Data.Text (Text, empty, pack)
+import Numeric (showFFloat)
 import qualified Data.Text.Read as T
 
 --------------------------------------------------------------------------------
@@ -32,8 +33,9 @@ dataToText (DataTxt x) = x
 dataToText (DataDbl x) = pack (showFloat x)
 
 
-showFloat :: (RealFrac a, Show a) => a -> String
-showFloat x = if floor x == ceiling x then show (floor x) else show x
+showFloat :: (RealFloat a, Show a) => a -> String
+showFloat x =
+  if floor x == ceiling x then show (floor x) else showFFloat (Just 2) x ""
 
 
 applyNumOp :: (Double -> Double -> Double) -> Data -> Data -> Data

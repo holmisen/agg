@@ -84,6 +84,10 @@ doAggregate fields = go where
       case getNumbers xs of
          [] -> nullData
          xs -> DataDbl $ List.minimum xs
+   agg AggAvg = \xs ->
+      case getNumbers xs of
+         [] -> nullData
+         xs -> DataDbl (sum xs / fromIntegral (length xs))
 
    getNumbers = catMaybes . map dataGetDouble
 
