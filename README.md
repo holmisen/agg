@@ -122,9 +122,11 @@ columns.
 
 Commands inside the braces act on the groups.
 
-`project [` _column_ [ `as` _name_ ] ... `]`
+`project [` _expr_ [ `as` _name_ ] ... `]`
 
-Rename and/or move columns.
+Rename/add/remove columns. Where _expr_ is a _column_ or a 
+combination of columns by arithmetic operators (such as `+`, 
+`*`, `-` and `/`).
 
 `aggregate [` _agg-function_ `(` _column_ `)` ... `]`
 
