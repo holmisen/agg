@@ -26,6 +26,10 @@ import Text.Printf (printf)
 
 newtype Record = Record [Data] deriving (Eq,Ord,Show)
 
+
+instance Semigroup Record where
+  (<>) = mappend
+
 instance Monoid Record where
    mempty = Record mempty
    mappend (Record x) (Record y) = Record (mappend x y)
