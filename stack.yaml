@@ -1,4 +1,4 @@
-resolver: lts-10.5
+resolver: lts-23.21
 
 # A package marked 'extra-dep: true' will only be built if demanded by a
 # non-dependency (i.e. a user package), and its test suites and benchmarks
